@@ -8,12 +8,14 @@
     --offwhite: #FCF9F4;
 }
 
+/* Reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Body */
 body {
     background-color: var(--offwhite);
     font-family: 'Segoe UI', sans-serif;
@@ -21,68 +23,131 @@ body {
     line-height: 1.65;
 }
 
-/* Navbar */
-.topnav {
+/* Sidebar */
+.sidebar {
     background-color: var(--latte);
-    border-bottom: 2px solid var(--coffee-light);
-    padding: 10px 20px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 15px;
 }
 
-.topnav a {
+.sidebar .nav-item .nav-link {
     color: var(--coffee-dark);
-    padding: 10px 12px;
-    font-size: 16px;
-    text-decoration: none;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: 0.25s ease;
+    transition: 0.3s;
 }
 
-.topnav a:hover {
+.sidebar .nav-item .nav-link:hover,
+.sidebar .nav-item.active .nav-link {
     background-color: var(--coffee-light);
     color: var(--offwhite);
 }
 
-/* Content Container */
-.container {
-    background: var(--latte-light);
-    padding: 28px 26px;
-    border-radius: 14px;
-    max-width: 520px;
-    margin: 60px auto;
+.sidebar .sidebar-brand {
+    color: var(--coffee-dark);
+}
+
+.sidebar .sidebar-divider {
+    border-top: 1px solid var(--coffee-light);
+}
+
+/* Topbar */
+.navbar {
+    background-color: var(--latte);
+    border-bottom: 2px solid var(--coffee-light);
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+    color: var(--coffee-dark);
+}
+
+.navbar .nav-link:hover {
+    color: var(--coffee-medium);
+}
+
+/* Cards */
+.card {
+    border-radius: 12px;
     box-shadow: 0 7px 20px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e8ddce;
+    background-color: var(--latte-light);
 }
 
-/* Buttons - Café Style */
-.btn {
+.card .card-header {
+    background-color: var(--latte);
+    border-bottom: 1px solid var(--coffee-light);
+    color: var(--coffee-dark);
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary {
     background-color: var(--coffee-dark);
-    color: var(--offwhite);
-    padding: 10px 18px;
-    border-radius: 8px;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 15px;
-    margin-top: 10px;
+    border-color: var(--coffee-dark);
     transition: 0.3s;
-    border: none;
 }
 
-.btn:hover {
+.btn-primary:hover {
+    background-color: var(--coffee-medium);
+    border-color: var(--coffee-medium);
+}
+
+/* Progress Bars */
+.progress-bar {
+    background-color: var(--coffee-dark);
+}
+
+.progress-bar.bg-info {
+    background-color: var(--olive);
+}
+
+.progress-bar.bg-warning {
+    background-color: var(--coffee-light);
+}
+
+.progress-bar.bg-success {
     background-color: var(--coffee-medium);
 }
 
+.progress-bar.bg-danger {
+    background-color: #e74a3b; /* รักษาเดิมแดงสด */
+}
+
+/* Charts */
+.chart-area,
+.chart-pie {
+    background-color: var(--latte-light);
+    padding: 10px;
+    border-radius: 10px;
+}
+
 /* Footer */
-.footer {
+.sticky-footer {
     background-color: var(--latte);
     border-top: 2px solid var(--coffee-light);
     color: var(--coffee-dark);
-    text-align: center;
-    padding: 16px;
-    margin-top: 50px;
     font-size: 14px;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 12px;
+    background-color: var(--latte-light);
+    color: var(--coffee-dark);
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+    background-color: var(--coffee-dark);
+}
+
+.scroll-to-top:hover {
+    background-color: var(--coffee-medium);
+}
+
+/* Links */
+a {
+    color: var(--coffee-dark);
+    transition: 0.25s;
+}
+
+a:hover {
+    color: var(--coffee-medium);
+    text-decoration: none;
 }
