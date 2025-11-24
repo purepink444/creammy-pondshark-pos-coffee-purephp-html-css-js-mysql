@@ -1,36 +1,44 @@
-
-
-<?php include('api.php');?>
-
+<?php include('api.php'); ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CustomerRegister</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <?php include ('header.php');?>
-    <br>
-    <form action="api_method.php?action=customer_register" method="POST">
-    <div class="container">
-        <h3 class="text-center">สมัครสมาชิก</h3>
-        <label for="Username">ชื่อ</label>
-        <input type="text" class="form-control" name="Name" required placeholder="โปรดระบุชื่อของคุณ">
-        <label for="Firstname">เบอร์โทรศัพท์</label>
-        <input type="text" class="form-control" name="Phone" required placeholder="โปรดระบุเบอร์โทรศัพท์">
-        <label for="Lastname">คะแนนสะสม</label>
-        <input type="text" class="form-control" name="Points" required placeholder="คะแนนสะสม">
-        <br>
-        <button type="submit" class="btn btn-primary" value="สมัครสมาชิก">สมัครสมาชิก</button>
+<?php include('header.php'); ?>
+
+<div class="center-page">
+    <div class="card-coffee register-card">
+
+        <!-- avatar -->
+        <div class="avatar-coffee mx-auto"></div>
+
+        <h3 class="text-center mt-3">สมัครสมาชิก</h3>
+me="Name" required placeholder="โปรดระบุชื่อของคุณ">
+
+            <label class="form-label mt-3">เบอร์โทรศัพท์</label>
+        <form action="api_method.php?action=customer_register" method="POST" class="mt-4">
+
+            <label class="form-label">ชื่อ</label>
+            <input type="text" class="form-control input-coffee" na
+            <input type="text" class="form-control input-coffee" name="Phone" required placeholder="โปรดระบุเบอร์โทรศัพท์">
+
+            <label class="form-label mt-3">คะแนนสะสม</label>
+            <input type="text" class="form-control input-coffee" name="Points" required placeholder="คะแนนสะสม">
+
+            <button type="submit" class="btn btn-coffee w-100 mt-4">สมัครสมาชิก</button>
+
+        </form>
     </div>
-    </form>
-    
-    <?php include ('footer.php');?>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+</div>
+
+<?php include('footer.php'); ?>
+
 </body>
 </html>

@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             break;
 
-        case 'customer_login':
+        case 'customer_query':
             try {
                 $Phone = $_POST['Phone'];
 
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 echo 'Login Error: ' . $e->getMessage();
             }
             break;
-        
+         
         case 'employee_register':
             # code...
             break;
