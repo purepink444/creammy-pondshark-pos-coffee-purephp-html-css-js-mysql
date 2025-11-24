@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mockup - ระบบจัดการร้านกาแฟ</title>
+  <title>ระบบเพิ่มเมนู</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,13 +24,14 @@
 
     <!-- Main content panel -->
     <section class="main-panel" aria-label="ตะกร้าสินค้า / รายละเอียด">
-      <h2 style="margin-top:0">ตะกร้าสินค้า</h2>
-      <p style="color:var(--muted)">พื้นที่แสดงรายการที่เลือก / รายละเอียดเพิ่มเติม / สรุปรายการและราคา</p>
 
-      <!-- ปุ่มเพิ่มเมนูใหม่ -->
-      <button id="add-menu">เพิ่มเมนู</button>
+      <!-- Header -->
+      <div class="panel-header">
+        <h2>ตะกร้าสินค้า</h2>
+        <button id="add-menu" type="button">+ เพิ่มเมนู</button>
+      </div>
 
-      <!-- ตารางตะกร้า -->
+      <!-- ตาราง -->
       <table id="cart-table">
         <thead>
           <tr>
@@ -40,9 +41,7 @@
             <th>จัดการ</th>
           </tr>
         </thead>
-        <tbody>
-          <!-- รายการจะมาแสดงที่นี่ -->
-        </tbody>
+        <tbody id="cart-body"></tbody>
       </table>
 
       <!-- ยอดรวม -->
@@ -50,92 +49,49 @@
         รวมทั้งหมด: 0 บาท | VAT 7%: 0 บาท | ราคาสุทธิ: 0 บาท
       </div>
 
-      <!-- ปุ่มยืนยันและลบทั้งหมด -->
+      <!-- ปุ่มลบทั้งหมด + ยืนยัน -->
       <div class="button-row">
         <button id="clear-all" type="button">ลบทั้งหมด</button>
         <button class="confirm" type="button">ยืนยันการสั่งซื้อ</button>
       </div>
-    </section>
 
+    </section>
   </main>
 
-<script>
-const cards = document.querySelectorAll('.gallery .card');
-const tableBody = document.querySelector('#cart-table tbody');
-const totalsDiv = document.getElementById('totals');
-const clearAllBtn = document.getElementById('clear-all');
-let cart = [];
 
-// ฟังก์ชันอัปเดตตารางและคำนวณยอด
-function updateCart() {
-  tableBody.innerHTML = '';
-  let total = 0;
+  <!-- Modal เพิ่มเมนูใหม่ -->
+  <div id="modal-add" class="modal">
+    <div class="modal-content">
+      <h3>เพิ่มเมนูใหม่</h3>
 
-  cart.forEach((item, i) => {
-    total += item.price;
-    tableBody.innerHTML += `<tr>
-      <td>${i+1}</td>
-      <td>${item.name}</td>
-      <td>${item.price} บาท</td>
-      <td>
-        <button class="btn-delete" data-index="${i}">ลบ</button>
-      </td>
-    </tr>`;
-  });
+      <label>ชื่อเมนู</label>
+      <input type="text" id="new-menu-name" placeholder="เช่น มอคค่าเย็น">
 
-  const vat = total * 0.07;
-  const grandTotal = total + vat;
+      <label>ราคา</label>
+      <input type="number" id="new-menu-price" placeholder="เช่น 55">
 
-  totalsDiv.textContent = `รวมทั้งหมด: ${total.toFixed(2)} บาท | VAT 7%: ${vat.toFixed(2)} บาท | ราคาสุทธิ: ${grandTotal.toFixed(2)} บาท`;
+      <label>คำอธิบาย</label>
+      <input type="text" id="new-menu-desc" placeholder="เช่น กาแฟผสมช็อกโกแลต">
 
-  // เพิ่ม event ให้ปุ่มจัดการ (ลบ)
-  const deleteButtons = document.querySelectorAll('.btn-delete');
-  deleteButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const index = parseInt(btn.getAttribute('data-index'));
-      cart.splice(index, 1); // ลบรายการจาก cart
-      updateCart(); // อัปเดตตารางและยอดรวมใหม่
-    });
-  });
-}
+      <label>รูปภาพ</label>
+      <input type="file" id="new-menu-image" >
 
-// ฟังก์ชันเพิ่มรายการลงตาราง
-function addToCart(name, price) {
-  cart.push({ name, price });
-  updateCart();
-}
+      <div class="modal-buttons">
+        <button id="close-modal" class="btn-cancel">ปิด</button>
+        <button id="save-menu" class="btn-save">เพิ่มเมนู</button>
+      </div>
+    </div>
+  </div>
 
-// คลิกเมนูเดิม
-cards.forEach(card => {
-  card.addEventListener('click', () => {
-    const name = card.textContent.trim();
-    const price = 50; // ตัวอย่างราคา
-    addToCart(name, price);
-  });
-});
+  <div id="alert-popup" class="modal-alert">
+    <div class="modal-alert-content">
+      <img src="pictures/check.png" alt="success">
+      <p id="alert-message">เพิ่มเมนูใหม่สำเร็จ</p>
+      <button id="close-alert" class="btn-confirm">ตกลง</button>
+    </div>
+  </div>
 
-// เพิ่มเมนูใหม่แบบ default
-document.getElementById('add-menu').addEventListener('click', () => {
-  const name = "เมนูใหม่"; // ชื่อเมนูใหม่
-  const price = 50;        // ราคา default
-
-  const newCard = document.createElement('div');
-  newCard.className = 'card';
-  newCard.textContent = name;
-
-  newCard.addEventListener('click', () => {
-    addToCart(name, price);
-  });
-
-  document.querySelector('.gallery').appendChild(newCard);
-});
-
-// ปุ่มลบทั้งหมด
-clearAllBtn.addEventListener('click', () => {
-  cart = [];
-  updateCart();
-});
-</script>
+  <script src="script.js"></script>
 
 </body>
 </html>
