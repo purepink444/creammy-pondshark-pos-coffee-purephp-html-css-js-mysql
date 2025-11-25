@@ -30,11 +30,12 @@ try {
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo "✓ Table ROLES created (ตารางบทบาท)<br>";
 
-    // 2. REGISTERS - ตารางผู้ใช้ระบบ (พนักงาน/เจ้าของ)
+    // 2. REGISTERS - ตารางผู้ใช้ระบบ (พนักงาน/เจ้าของ) + เพิ่มฟิลด์ Name
     $conn->exec("CREATE TABLE IF NOT EXISTS REGISTERS(
         RegisterID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสผู้ใช้',
         Username VARCHAR(50) NOT NULL UNIQUE COMMENT 'ชื่อผู้ใช้ (ไม่ซ้ำกัน)',
         Password VARCHAR(255) NOT NULL COMMENT 'รหัสผ่าน (เข้ารหัส)',
+        Name VARCHAR(100) COMMENT 'ชื่อ-นามสกุล',
         Email VARCHAR(100) COMMENT 'อีเมล',
         RoleID INT NOT NULL COMMENT 'รหัสบทบาท (FK → roles)',
         Status INT DEFAULT 1 COMMENT 'สถานะ (1=ใช้งาน, 0=ปิดใช้งาน)',
@@ -42,7 +43,7 @@ try {
         UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันที่อัปเดตล่าสุด',
         FOREIGN KEY (RoleID) REFERENCES ROLES(RoleID)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table REGISTERS created (ตารางผู้ใช้)<br>";
+    echo "✓ Table REGISTERS created (ตารางผู้ใช้) + Name Field<br>";
 
     // 3. CATEGORY - ตารางหมวดหมู่สินค้า (กาแฟ ชา ของหวาน)
     $conn->exec("CREATE TABLE IF NOT EXISTS CATEGORY(
@@ -131,32 +132,31 @@ try {
     }
     echo "✓ Inserted 3 roles (บทบาท) - RoleID: 601-603<br>";
 
-    // 2. INSERT REGISTERS (ผู้ใช้) - ดัชนีเริ่มต้นที่ 101
+    // 2. INSERT REGISTERS (ผู้ใช้) - ดัชนีเริ่มต้นที่ 101 + เพิ่มชื่อ-นามสกุล
     $registers = [
-        [101, 'admin01', password_hash('admin123', PASSWORD_BCRYPT), 'admin@sophacafe.com', 601],
-        [102, 'cashier01', password_hash('cashier123', PASSWORD_BCRYPT), 'cashier@sophacafe.com', 602],
-        [103, 'manager01', password_hash('manager123', PASSWORD_BCRYPT), 'manager@sophacafe.com', 603]
+        [101, 'admin01', password_hash('admin123', PASSWORD_BCRYPT), 'สมชาย ใจดี', 'admin@sophacafe.com', 601],
+        [102, 'cashier01', password_hash('cashier123', PASSWORD_BCRYPT), 'วิชญา สวยงาม', 'cashier@sophacafe.com', 602],
+        [103, 'manager01', password_hash('manager123', PASSWORD_BCRYPT), 'ประเสริฐ จริงใจ', 'manager@sophacafe.com', 603]
     ];
 
     foreach ($registers as $reg) {
-        $stmt = $conn->prepare("INSERT INTO REGISTERS (RegisterID, Username, Password, Email, RoleID, Status) VALUES (?, ?, ?, ?, ?, 1)");
+        $stmt = $conn->prepare("INSERT INTO REGISTERS (RegisterID, Username, Password, Name, Email, RoleID, Status) VALUES (?, ?, ?, ?, ?, ?, 1)");
         $stmt->execute($reg);
     }
-    echo "✓ Inserted 3 users (ผู้ใช้) - RegisterID: 101-103<br>";
+    echo "✓ Inserted 3 users (ผู้ใช้) - RegisterID: 101-103 + Name Field<br>";
 
     // 3. INSERT CATEGORY (หมวดหมู่) - ดัชนีเริ่มต้นที่ 401
     $categories = [
-        [401, 'กาแฟเข้ม'],
-        [402, 'กาแฟน้ำหนาว'],
-        [403, 'ชา'],
-        [404, 'เครื่องดื่มอื่น'],
-        [405, 'ของหวาน']
+        [401, 'กาแฟ'],
+        [402, 'ชา'],
+        [403, 'เครื่องดื่มอื่น'],
+        [404, 'ของหวาน']
     ];
 
     foreach ($categories as $cat) {
         $conn->exec("INSERT INTO CATEGORY (CategoryID, CategoryName) VALUES ({$cat[0]}, '{$cat[1]}')");
     }
-    echo "✓ Inserted 5 categories (หมวดหมู่) - CategoryID: 401-405<br>";
+    echo "✓ Inserted 4 categories (หมวดหมู่) - CategoryID: 401-404<br>";
 
     // 4. INSERT MENU (เมนู) - ดัชนีเริ่มต้นที่ 301
     $menus = [
@@ -164,16 +164,16 @@ try {
         [302, 401, 'Americano', 50.00, 'เอสเพรสโซ+น้ำร้อน'],
         [303, 401, 'Cappuccino', 60.00, 'เอสเพรสโซ+นมร้อน+ฟอง'],
         [304, 401, 'Latte', 65.00, 'เอสเพรสโซ+นมร้อนมาก'],
-        [305, 402, 'Iced Americano', 55.00, 'เอสเพรสโซ+น้ำแข็ง'],
-        [306, 402, 'Iced Latte', 70.00, 'เอสเพรสโซ+นมเย็น'],
-        [307, 402, 'Cold Brew', 60.00, 'กาแฟชงเย็น'],
-        [308, 403, 'Thai Tea', 45.00, 'ชาไทยดั้งเดิม'],
-        [309, 403, 'Green Tea', 40.00, 'ชาเขียวญี่ปุ่น'],
-        [310, 404, 'Orange Juice', 45.00, 'น้ำส้มสด'],
-        [311, 404, 'Lemonade', 40.00, 'น้ำมะนาว'],
-        [312, 405, 'Chocolate Cake', 85.00, 'เค้กช็อกโกแลต'],
-        [313, 405, 'Croissant', 50.00, 'ครัวซอง'],
-        [314, 405, 'Cheesecake', 80.00, 'ชีสเค้กเนื้อนุ่ม']
+        [305, 401, 'Iced Americano', 55.00, 'เอสเพรสโซ+น้ำแข็ง'],
+        [306, 401, 'Iced Latte', 70.00, 'เอสเพรสโซ+นมเย็น'],
+        [307, 401, 'Cold Brew', 60.00, 'กาแฟชงเย็น'],
+        [308, 402, 'Thai Tea', 45.00, 'ชาไทยดั้งเดิม'],
+        [309, 402, 'Green Tea', 40.00, 'ชาเขียวญี่ปุ่น'],
+        [310, 403, 'Orange Juice', 45.00, 'น้ำส้มสด'],
+        [311, 403, 'Lemonade', 40.00, 'น้ำมะนาว'],
+        [312, 404, 'Chocolate Cake', 85.00, 'เค้กช็อกโกแลต'],
+        [313, 404, 'Croissant', 50.00, 'ครัวซอง'],
+        [314, 404, 'Cheesecake', 80.00, 'ชีสเค้กเนื้อนุ่ม']
     ];
 
     foreach ($menus as $menu) {

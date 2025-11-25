@@ -65,16 +65,16 @@
       <h3>เพิ่มเมนูใหม่</h3>
 
       <label>ชื่อเมนู</label>
-      <input type="text" id="new-menu-name" placeholder="เช่น มอคค่าเย็น">
+      <input type="text" id="new-menu-name" name="" placeholder="เช่น มอคค่าเย็น">
 
       <label>ราคา</label>
-      <input type="number" id="new-menu-price" placeholder="เช่น 55">
+      <input type="number" id="new-menu-price" name="" placeholder="เช่น 55">
 
       <label>คำอธิบาย</label>
-      <input type="text" id="new-menu-desc" placeholder="เช่น กาแฟผสมช็อกโกแลต">
+      <input type="text" id="new-menu-desc" name="" placeholder="เช่น กาแฟผสมช็อกโกแลต">
 
       <label>รูปภาพ</label>
-      <input type="file" id="new-menu-image" >
+      <input type="file" id="new-menu-image" name="">
 
       <div class="modal-buttons">
         <button id="close-modal" class="btn-cancel">ปิด</button>

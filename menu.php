@@ -11,26 +11,28 @@
 
     <div class="page-background">
 
-        <!-- Dropdown Category -->
-    <div class="dropdown-category-wrapper">
-        <div class="dropdown-category" id="dropdownBtn">
-            ทั้งหมด
+        <!-- Menu Header with Dropdown (ขวามือ) -->
+        <div class="menu-header">
+            <div class="dropdown-category-wrapper">
+                <div class="dropdown-category" id="dropdownBtn">
+                    ทั้งหมด
+                </div>
+                <div class="dropdown-panel" id="dropdownPanel">
+                    <div class="dropdown-item">
+                        <img src="/mnt/data/list.png" alt="Icon 1">
+                        <span>Category 1</span>
+                    </div>
+                    <div class="dropdown-item">
+                        <img src="/mnt/data/list.png" alt="Icon 2">
+                        <span>Category 2</span>
+                    </div>
+                    <div class="dropdown-item">
+                        <img src="/mnt/data/list.png" alt="Icon 3">
+                        <span>Category 3</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="dropdown-panel" id="dropdownPanel">
-            <div class="dropdown-item">
-                <img src="/mnt/data/list.png" alt="Icon 1">
-                <span>Category 1</span>
-            </div>
-            <div class="dropdown-item">
-                <img src="/mnt/data/list.png" alt="Icon 2">
-                <span>Category 2</span>
-            </div>
-            <div class="dropdown-item">
-                <img src="/mnt/data/list.png" alt="Icon 3">
-                <span>Category 3</span>
-            </div>
-        </div>
-    </div>
 
         <!-- Menu Panel -->
         <div class="menu-panel">
@@ -92,6 +94,13 @@
 
         dropdownBtn.addEventListener('click', () => {
             dropdownPanel.style.display = dropdownPanel.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // ปิด dropdown เมื่อคลิกข้างนอก
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-category-wrapper')) {
+                dropdownPanel.style.display = 'none';
+            }
         });
     </script>
 </body>
