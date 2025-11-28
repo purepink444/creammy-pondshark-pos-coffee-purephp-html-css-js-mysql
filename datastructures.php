@@ -7,31 +7,42 @@ include('api.php');
 
     # code...
     switch ($action) {
-        case 'user_register':
+        case 'customer_register':
             # code...
-                userRegister($conn);
+                customerRegister($conn);
             break;
-        
+        case 'customer_login':
+            # code...
+                customerLogin($conn);
+            break;
+        case 'admin_register':
+            # code...
+                adminRegister($conn);
+            break;
         default:
             # code...
             break;
     }
 
-           function userRegister($conn) {
+           function customerRegister($conn) {
                     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                    $username = $_POST['username'];
-                    $name = $_POST['name'];
-                    $email = $_POST['email'];
-                    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                    $Username = $_POST['Username'];
+                    $Name = $_POST['Name'];
+                    $Phone = $_POST['Phone'];
+                    $Email = $_POST['Email'];
+                    $Password = password_hash($_POST['Password'], PASSWORD_DEFAULT);
+                    $Points = $_POST['Points'];
 
                         try {
                             //code...
-                            $sql = "INSERT INTO users (username, name, email, password) VALUES (:username, :name, :email, :password)";
+                            $sql = "INSERT INTO customer (Username, Name, Phone, Email, Password, Points) VALUES (:Username, :Name, :Phone, :Email, :Password, :Points)";
                             $stmt = $conn->prepare($sql);
-                            $stmt->bindParam(':username', $username);
-                            $stmt->bindParam(':name', $name);
-                            $stmt->bindParam(':email', $email);
-                            $stmt->bindParam(':password', $password);
+                            $stmt->bindParam(':Username', $Username);
+                            $stmt->bindParam(':Name', $Name);
+                            $stmt->bindParam(':Phone', $Phone);
+                            $stmt->bindParam(':Email', $Email);
+                            $stmt->bindParam(':Password', $Password);
+                            $stmt->bindParam(':Points', $Points);
                             $stmt->execute();
                             echo 'Register Success';
                         } catch (PDOException $e) {
@@ -42,6 +53,29 @@ include('api.php');
                  }
             }
 
+            function customerLogin($conn) {
+                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                        # code...
+                        $Username = $_POST['Username'];
+                        $Password = password_hash($_POST['Password'], PASSWORD_DEFAULT);
 
+                        try {
+                            //code...
+                            $sql = "SELECT * FROM customer WHERE Username = :Username";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bindParam(':Username', $Username);
+                            $stmt->bindParam(':Password', $Password);
+                            $stmt->execute();
+
+                            } catch (PDOException $e) {
+                            //throw $th;
+                            echo 'Login Failed' .$e->getMessage();
+                        }
+                    }
+            }
+
+            function adminRegister($conn) {
+                    
+            }
 
 ?>

@@ -22,13 +22,13 @@
 
         <h3 class="text-center mt-3">สมัครสมาชิก</h3>
 
-        <form action="api_method.php?action=customer_register" method="POST" class="mt-4">
+        <form action="datastructures.php?action=customer_register" method="POST" class="mt-4">
 
             <label class="form-label mt-3">ชื่อผู้ใช้</label>
             <input type="text" class="form-control input-coffee" name="Username" required placeholder="โปรดระบุชื่อผู้ใช้">
 
             <label class="form-label mt-3">ชื่อ-นามสกุล</label>
-            <input type="text" class="form-control input-coffee" name="Fullname" required placeholder="โปรดระบุชื่อ-นามสกุล">
+            <input type="text" class="form-control input-coffee" name="Name" required placeholder="โปรดระบุชื่อ-นามสกุล">
 
             <label class="form-label mt-3">อีเมล</label>
             <input type="email" class="form-control input-coffee" name="Email" required placeholder="โปรดระบุอีเมล">

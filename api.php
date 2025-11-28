@@ -2,6 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Database Configuration
 $DB_HOST = getenv('DB_HOST') ?: 'localhost';
 $DB_USER = getenv('DB_USER') ?: 'root';
 $DB_PASS = getenv('DB_PASSWORD') ?: 'pinkcuteroot';
@@ -22,239 +23,282 @@ try {
     $conn->exec("USE $DB_NAME");
     echo "✓ Using database '$DB_NAME'<br><br>";
 
-    // 1. ROLES - ตารางบทบาท (Admin, Cashier, Manager)
+    // ========== CREATE TABLES ==========
+    echo "<h3>📋 Creating Tables</h3>";
+
+    // 1. ROLES - ตารางบทบาทผู้ใช้
     $conn->exec("CREATE TABLE IF NOT EXISTS ROLES(
         RoleID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสบทบาท',
-        RoleName VARCHAR(30) NOT NULL COMMENT 'ชื่อบทบาท (Admin, Cashier, Manager)',
-        Description VARCHAR(100) COMMENT 'คำอธิบายบทบาท'
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table ROLES created (ตารางบทบาท)<br>";
+        RoleName VARCHAR(30) NOT NULL UNIQUE COMMENT 'ชื่อบทบาท',
+        Description VARCHAR(100) COMMENT 'คำอธิบายบทบาท',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table ROLES created<br>";
 
-    // 2. REGISTERS - ตารางผู้ใช้ระบบ (พนักงาน/เจ้าของ) + เพิ่มฟิลด์ Name
-    $conn->exec("CREATE TABLE IF NOT EXISTS REGISTERS(
-        RegisterID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสผู้ใช้',
-        Username VARCHAR(50) NOT NULL UNIQUE COMMENT 'ชื่อผู้ใช้ (ไม่ซ้ำกัน)',
-        Password VARCHAR(255) NOT NULL COMMENT 'รหัสผ่าน (เข้ารหัส)',
-        Name VARCHAR(100) COMMENT 'ชื่อ-นามสกุล',
-        Email VARCHAR(100) COMMENT 'อีเมล',
-        RoleID INT NOT NULL COMMENT 'รหัสบทบาท (FK → roles)',
-        Status INT DEFAULT 1 COMMENT 'สถานะ (1=ใช้งาน, 0=ปิดใช้งาน)',
-        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'วันที่สร้างบัญชี',
-        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันที่อัปเดตล่าสุด',
-        FOREIGN KEY (RoleID) REFERENCES ROLES(RoleID)
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table REGISTERS created (ตารางผู้ใช้) + Name Field<br>";
+    // 2. EMPLOYEE - ตารางพนักงาน 
+    $conn->exec("CREATE TABLE IF NOT EXISTS EMPLOYEE(
+        EmployeeID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสพนักงาน',
+        Username VARCHAR(50) NOT NULL UNIQUE COMMENT 'ชื่อผู้ใช้',
+        Password VARCHAR(255) NOT NULL COMMENT 'รหัสผ่าน',
+        Name VARCHAR(100) NOT NULL COMMENT 'ชื่อ-นามสกุล',
+        Email VARCHAR(100) UNIQUE COMMENT 'อีเมล',
+        Phone VARCHAR(10) COMMENT 'เบอร์โทรศัพท์',
+        RoleID INT NOT NULL COMMENT 'รหัสบทบาท',
+        Status ENUM('Active', 'Inactive') DEFAULT 'Active' COMMENT 'สถานะ',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (RoleID) REFERENCES ROLES(RoleID) ON DELETE RESTRICT
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table EMPLOYEE created<br>";
 
-    // 3. CATEGORY - ตารางหมวดหมู่สินค้า (กาแฟ ชา ของหวาน)
+    // 3. CATEGORY - ตารางหมวดหมู่สินค้า
     $conn->exec("CREATE TABLE IF NOT EXISTS CATEGORY(
-        CategoryID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสหมวดหมู่',
-        CategoryName VARCHAR(40) NOT NULL COMMENT 'ชื่อหมวดหมู่'
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table CATEGORY created (ตารางหมวดหมู่)<br>";
+        CategoryID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสหมวดหมู่สินค้า',
+        CategoryName VARCHAR(40) NOT NULL UNIQUE COMMENT 'ชื่อหมวดหมู่สินค้า',
+        Description VARCHAR(100) COMMENT 'คำอธิบาย',
+        Status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table CATEGORY created<br>";
 
-    // 4. MENU - ตารางเมนูสินค้า
+    // 4. MENU - ตารางเมนู
     $conn->exec("CREATE TABLE IF NOT EXISTS MENU(
         MenuID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสเมนู',
-        CategoryID INT NOT NULL COMMENT 'รหัสหมวดหมู่ (FK → category)',
+        CategoryID INT NOT NULL COMMENT 'รหัสหมวดหมู่',
         MenuName VARCHAR(50) NOT NULL COMMENT 'ชื่อสินค้า',
-        Price DECIMAL(6,2) NOT NULL COMMENT 'ราคาขาย',
-        Description VARCHAR(100) COMMENT 'รายละเอียดสินค้า',
-        Image LONGBLOB COMMENT 'รูปภาพสินค้า (BLOB)',
-        ImagePath VARCHAR(255) COMMENT 'เส้นทางรูปภาพ (หากเก็บไฟล์)',
-        Status INT DEFAULT 1 COMMENT 'สถานะ (1=มีขาย, 0=หยุดขาย)',
-        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'วันที่เพิ่มสินค้า',
-        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันที่อัปเดตล่าสุด',
-        FOREIGN KEY (CategoryID) REFERENCES CATEGORY(CategoryID)
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table MENU created (ตารางเมนู) + Image Field<br>";
+        Price DECIMAL(8,2) NOT NULL COMMENT 'ราคาขาย',
+        Cost DECIMAL(8,2) DEFAULT 0 COMMENT 'ต้นทุน',
+        Description TEXT COMMENT 'รายละเอียด',
+        ImagePath VARCHAR(255) COMMENT 'เส้นทางรูปภาพ',
+        Status ENUM('Available', 'Unavailable') DEFAULT 'Available',
+        IsPopular BOOLEAN DEFAULT FALSE COMMENT 'เมนูยอดนิยม',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (CategoryID) REFERENCES CATEGORY(CategoryID) ON DELETE RESTRICT,
+        INDEX idx_category (CategoryID),
+        INDEX idx_status (Status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table MENU created<br>";
 
     // 5. CUSTOMER - ตารางลูกค้า
     $conn->exec("CREATE TABLE IF NOT EXISTS CUSTOMER(
         CustomerID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสลูกค้า',
-        Name VARCHAR(50) NOT NULL COMMENT 'ชื่อลูกค้า',
-        Phone VARCHAR(10) COMMENT 'เบอร์โทรศัพท์',
-        Points INT DEFAULT 0 COMMENT 'คะแนนสะสม (loyalty points)',
-        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'วันที่สมัครสมาชิก'
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table CUSTOMER created (ตารางลูกค้า)<br>";
+        Username VARCHAR(100) NOT NULL COMMENT 'ชื่อผู้ใช้',
+        Name VARCHAR(100) NOT NULL COMMENT 'ชื่อลูกค้า',
+        Phone VARCHAR(10) UNIQUE COMMENT 'เบอร์โทร',
+        Email VARCHAR(100) UNIQUE COMMENT 'อีเมล',
+        Password VARCHAR(255) COMMENT 'รหัสผ่าน',
+        Points INT DEFAULT 0 COMMENT 'คะแนนสะสม',
+        MemberLevel ENUM('Bronze', 'Silver', 'Gold', 'Platinum') DEFAULT 'Bronze',
+        Status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_phone (Phone)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table CUSTOMER created<br>";
 
     // 6. ORDERS - ตารางใบสั่งซื้อ
     $conn->exec("CREATE TABLE IF NOT EXISTS ORDERS(
-        OrderID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสใบสั่งซื้อ',
-        OrderDate DATETIME NOT NULL COMMENT 'วันที่สั่งซื้อ',
-        RegisterID INT NOT NULL COMMENT 'รหัสผู้ใช้ (FK → registers)',
-        CustomerID INT COMMENT 'รหัสลูกค้า (FK → customer)',
-        TotalPrice DECIMAL(7,2) NOT NULL COMMENT 'ราคารวมทั้งสิ้น',
-        Discount DECIMAL(6,2) DEFAULT 0 COMMENT 'ส่วนลด',
-        PaymentMethod VARCHAR(20) DEFAULT 'Cash' COMMENT 'วิธีชำระเงิน (Cash, Card, QR Code)',
-        OrderStatus VARCHAR(20) DEFAULT 'Completed' COMMENT 'สถานะคำสั่ง (Pending, Completed, Cancelled)',
-        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'วันที่สร้างใบสั่ง',
-        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันที่อัปเดตล่าสุด',
-        FOREIGN KEY (RegisterID) REFERENCES REGISTERS(RegisterID),
-        FOREIGN KEY (CustomerID) REFERENCES CUSTOMER(CustomerID)
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table ORDERS created (ตารางใบสั่ง)<br>";
+        OrderID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสใบสั่ง',
+        OrderNumber VARCHAR(20) UNIQUE NOT NULL COMMENT 'เลขที่ใบสั่ง',
+        OrderDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'วันที่สั่ง',
+        EmployeeID INT NOT NULL COMMENT 'รหัสพนักงาน',
+        CustomerID INT COMMENT 'รหัสลูกค้า',
+        SubTotal DECIMAL(10,2) NOT NULL COMMENT 'ราคารวมก่อนส่วนลด',
+        Discount DECIMAL(8,2) DEFAULT 0 COMMENT 'ส่วนลด',
+        Tax DECIMAL(8,2) DEFAULT 0 COMMENT 'ภาษี',
+        TotalPrice DECIMAL(10,2) NOT NULL COMMENT 'ราคารวมสุทธิ',
+        PaymentMethod ENUM('Cash', 'Card', 'QR Code', 'Transfer') DEFAULT 'Cash',
+        PaymentStatus ENUM('Pending', 'Paid', 'Refunded') DEFAULT 'Paid',
+        OrderStatus ENUM('Pending', 'Preparing', 'Completed', 'Cancelled') DEFAULT 'Completed',
+        Note TEXT COMMENT 'หมายเหตุ',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (EmployeeID) REFERENCES EMPLOYEE(EmployeeID) ON DELETE RESTRICT,
+        FOREIGN KEY (CustomerID) REFERENCES CUSTOMER(CustomerID) ON DELETE SET NULL,
+        INDEX idx_order_date (OrderDate),
+        INDEX idx_employee (EmployeeID),
+        INDEX idx_customer (CustomerID)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table ORDERS created<br>";
 
-    // 7. ORDERDETAIL - ตารางรายละเอียดใบสั่ง
+    // 7. ORDERDETAIL - ตารางรายละเอียดใบสั่งเมนู
     $conn->exec("CREATE TABLE IF NOT EXISTS ORDERDETAIL(
-        OrderDetailID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสรายละเอียดสั่ง',
-        OrderID INT NOT NULL COMMENT 'รหัสใบสั่งซื้อ (FK → orders)',
-        MenuID INT NOT NULL COMMENT 'รหัสเมนู (FK → menu)',
-        Quantity INT NOT NULL COMMENT 'จำนวนที่สั่ง',
-        Price DECIMAL(6,2) NOT NULL COMMENT 'ราคาต่อหน่วย (ราคาจริงตอนขาย)',
-        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'วันที่เพิ่มรายการ',
-        FOREIGN KEY (OrderID) REFERENCES ORDERS(OrderID),
-        FOREIGN KEY (MenuID) REFERENCES MENU(MenuID)
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table ORDERDETAIL created (ตารางรายละเอียด)<br>";
+        OrderDetailID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสรายละเอียด',
+        OrderID INT NOT NULL COMMENT 'รหัสใบสั่ง',
+        MenuID INT NOT NULL COMMENT 'รหัสเมนู',
+        MenuName VARCHAR(50) NOT NULL COMMENT 'ชื่อเมนู (เก็บไว้เผื่อเมนูถูกลบ)',
+        Quantity INT NOT NULL DEFAULT 1 COMMENT 'จำนวน',
+        Price DECIMAL(8,2) NOT NULL COMMENT 'ราคาต่อหน่วย',
+        Subtotal DECIMAL(10,2) NOT NULL COMMENT 'ราคารวม',
+        Note VARCHAR(255) COMMENT 'หมายเหตุ (เช่น เพิ่มน้ำตาล)',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (OrderID) REFERENCES ORDERS(OrderID) ON DELETE CASCADE,
+        FOREIGN KEY (MenuID) REFERENCES MENU(MenuID) ON DELETE RESTRICT,
+        INDEX idx_order (OrderID)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table ORDERDETAIL created<br>";
 
-    // 8. SUPPLIER - ตารางผู้จัดส่ง
+    // 8. SUPPLIER - ตารางผู้จัดจำหน่ายวัตถุดิบ
     $conn->exec("CREATE TABLE IF NOT EXISTS SUPPLIER(
-        SupplierID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสผู้จัดส่ง',
-        SupplierName VARCHAR(50) NOT NULL COMMENT 'ชื่อผู้จัดส่ง',
-        Phone VARCHAR(10) COMMENT 'เบอร์โทรศัพท์ผู้จัดส่ง',
-        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'วันที่เพิ่มข้อมูล'
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "✓ Table SUPPLIER created (ตารางผู้จัดส่ง)<br><br>";
+        SupplierID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสผู้จัดจำหน่ายวัตถุดิบ',
+        SupplierName VARCHAR(100) NOT NULL COMMENT 'ชื่อผู้จัดจำหน่ายวัตถุดิบ',
+        ContactPerson VARCHAR(100) COMMENT 'ชื่อผู้ติดต่อ',
+        Phone VARCHAR(10) COMMENT 'เบอร์โทร',
+        Email VARCHAR(100) COMMENT 'อีเมล',
+        Address TEXT COMMENT 'ที่อยู่',
+        Status ENUM('Active', 'Inactive') DEFAULT 'Active',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table SUPPLIER created<br>";
+
+    // 9. PROMOTION - ตารางโปรโมชั่น 
+    $conn->exec("CREATE TABLE IF NOT EXISTS PROMOTION(
+        PromotionID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        PromotionName VARCHAR(100) NOT NULL,
+        Description TEXT,
+        DiscountType ENUM('Percent', 'Fixed') NOT NULL,
+        DiscountValue DECIMAL(8,2) NOT NULL,
+        MinPurchase DECIMAL(8,2) DEFAULT 0,
+        StartDate DATE NOT NULL,
+        EndDate DATE NOT NULL,
+        Status ENUM('Active', 'Inactive', 'Expired') DEFAULT 'Active',
+        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "✓ Table PROMOTION created<br><br>";
 
     // ========== INSERT SAMPLE DATA ==========
     echo "<hr><h3>📊 Inserting Sample Data</h3><hr>";
 
-    // 1. INSERT ROLES (บทบาท) - ดัชนีเริ่มต้นที่ 601
+    // 1. ROLES - เริ่มที่ 601
     $roles = [
-        [601, 'Admin', 'ผู้ดูแลระบบ'],
-        [602, 'Cashier', 'พนักงานเก็บเงิน'],
-        [603, 'Manager', 'ผู้จัดการร้าน']
+        [601, 'Admin', 'ผู้ดูแลระบบ มีสิทธิ์เต็ม'],
+        [602, 'Manager', 'ผู้จัดการ จัดการร้าน รายงาน'],
+        [603, 'Cashier', 'พนักงานขาย รับออร์เดอร์']
     ];
 
+    $stmt = $conn->prepare("INSERT IGNORE INTO ROLES (RoleID, RoleName, Description) VALUES (?, ?, ?)");
     foreach ($roles as $role) {
-        $conn->exec("INSERT INTO ROLES (RoleID, RoleName, Description) VALUES ({$role[0]}, '{$role[1]}', '{$role[2]}')");
+        $stmt->execute($role);
     }
-    echo "✓ Inserted 3 roles (บทบาท) - RoleID: 601-603<br>";
+    echo "✓ Inserted 3 roles (RoleID: 601-603)<br>";
 
-    // 2. INSERT REGISTERS (ผู้ใช้) - ดัชนีเริ่มต้นที่ 101 + เพิ่มชื่อ-นามสกุล
-    $registers = [
-        [101, 'admin01', password_hash('admin123', PASSWORD_BCRYPT), 'สมชาย ใจดี', 'admin@sophacafe.com', 601],
-        [102, 'cashier01', password_hash('cashier123', PASSWORD_BCRYPT), 'วิชญา สวยงาม', 'cashier@sophacafe.com', 602],
-        [103, 'manager01', password_hash('manager123', PASSWORD_BCRYPT), 'ประเสริฐ จริงใจ', 'manager@sophacafe.com', 603]
+    // 2. EMPLOYEE - เริ่มที่ 101
+    $employees = [
+        [101, 'admin01', password_hash('admin123', PASSWORD_BCRYPT), 'สมชาย ใจดี', 'admin@sophacafe.com', '0812345678', 601],
+        [102, 'manager01', password_hash('manager123', PASSWORD_BCRYPT), 'ประเสริฐ จริงใจ', 'manager@sophacafe.com', '0823456789', 602],
+        [103, 'cashier01', password_hash('cashier123', PASSWORD_BCRYPT), 'วิชญา สวยงาม', 'cashier1@sophacafe.com', '0834567890', 603],
+        [104, 'cashier02', password_hash('cashier123', PASSWORD_BCRYPT), 'สมหญิง ยิ้มสวย', 'cashier2@sophacafe.com', '0845678901', 603]
     ];
 
-    foreach ($registers as $reg) {
-        $stmt = $conn->prepare("INSERT INTO REGISTERS (RegisterID, Username, Password, Name, Email, RoleID, Status) VALUES (?, ?, ?, ?, ?, ?, 1)");
-        $stmt->execute($reg);
+    $stmt = $conn->prepare("INSERT IGNORE INTO EMPLOYEE (EmployeeID, Username, Password, Name, Email, Phone, RoleID) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    foreach ($employees as $emp) {
+        $stmt->execute($emp);
     }
-    echo "✓ Inserted 3 users (ผู้ใช้) - RegisterID: 101-103 + Name Field<br>";
+    echo "✓ Inserted 4 employees (EmployeeID: 101-104)<br>";
 
-    // 3. INSERT CATEGORY (หมวดหมู่) - ดัชนีเริ่มต้นที่ 401
+    // 3. CATEGORY - เริ่มที่ 401
     $categories = [
-        [401, 'กาแฟ'],
-        [402, 'ชา'],
-        [403, 'เครื่องดื่มอื่น'],
-        [404, 'ของหวาน']
+        [401, 'กาแฟ', 'เครื่องดื่มกาแฟทุกชนิด'],
+        [402, 'ชา', 'ชาร้อน ชาเย็น'],
+        [403, 'เครื่องดื่มอื่นๆ', 'น้ำผลไม้ โซดา'],
+        [404, 'ของหวาน', 'เค้ก ขนมปัง คุกกี้'],
+        [405, 'อาหารว่าง', 'แซนวิช สลัด']
     ];
 
+    $stmt = $conn->prepare("INSERT IGNORE INTO CATEGORY (CategoryID, CategoryName, Description) VALUES (?, ?, ?)");
     foreach ($categories as $cat) {
-        $conn->exec("INSERT INTO CATEGORY (CategoryID, CategoryName) VALUES ({$cat[0]}, '{$cat[1]}')");
+        $stmt->execute($cat);
     }
-    echo "✓ Inserted 4 categories (หมวดหมู่) - CategoryID: 401-404<br>";
+    echo "✓ Inserted 5 categories (CategoryID: 401-405)<br>";
 
-    // 4. INSERT MENU (เมนู) - ดัชนีเริ่มต้นที่ 301
+    // 4. MENU - เริ่มที่ 301
     $menus = [
-        [301, 401, 'Espresso', 40.00, 'กาแฟเอสเพรสโซ่เข้มข้น'],
-        [302, 401, 'Americano', 50.00, 'เอสเพรสโซ+น้ำร้อน'],
-        [303, 401, 'Cappuccino', 60.00, 'เอสเพรสโซ+นมร้อน+ฟอง'],
-        [304, 401, 'Latte', 65.00, 'เอสเพรสโซ+นมร้อนมาก'],
-        [305, 401, 'Iced Americano', 55.00, 'เอสเพรสโซ+น้ำแข็ง'],
-        [306, 401, 'Iced Latte', 70.00, 'เอสเพรสโซ+นมเย็น'],
-        [307, 401, 'Cold Brew', 60.00, 'กาแฟชงเย็น'],
-        [308, 402, 'Thai Tea', 45.00, 'ชาไทยดั้งเดิม'],
-        [309, 402, 'Green Tea', 40.00, 'ชาเขียวญี่ปุ่น'],
-        [310, 403, 'Orange Juice', 45.00, 'น้ำส้มสด'],
-        [311, 403, 'Lemonade', 40.00, 'น้ำมะนาว'],
-        [312, 404, 'Chocolate Cake', 85.00, 'เค้กช็อกโกแลต'],
-        [313, 404, 'Croissant', 50.00, 'ครัวซอง'],
-        [314, 404, 'Cheesecake', 80.00, 'ชีสเค้กเนื้อนุ่ม']
+        [301, 401, 'Espresso', 40.00, 20.00, 'กาแฟเอสเพรสโซ่เข้มข้น', 1],
+        [302, 401, 'Americano', 50.00, 25.00, 'เอสเพรสโซ + น้ำร้อน', 1],
+        [303, 401, 'Cappuccino', 60.00, 30.00, 'เอสเพรสโซ + นมร้อน + ฟองนม', 1],
+        [304, 401, 'Latte', 65.00, 32.00, 'เอสเพรสโซ + นมร้อน', 1],
+        [305, 401, 'Mocha', 70.00, 35.00, 'ลาเต้ + ช็อกโกแลต', 1],
+        [306, 401, 'Iced Americano', 55.00, 27.00, 'เอสเพรสโซ + น้ำแข็ง', 1],
+        [307, 401, 'Iced Latte', 70.00, 35.00, 'เอสเพรสโซ + นมเย็น', 1],
+        [308, 401, 'Cold Brew', 75.00, 38.00, 'กาแฟชงเย็น 12 ชั่วโมง', 1],
+        [309, 402, 'Thai Tea', 45.00, 20.00, 'ชาไทยแท้', 1],
+        [310, 402, 'Green Tea', 40.00, 18.00, 'ชาเขียวญี่ปุ่น', 1],
+        [311, 402, 'Milk Tea', 50.00, 22.00, 'ชานมไต้หวัน', 1],
+        [312, 403, 'Orange Juice', 45.00, 25.00, 'น้ำส้มคั้นสด', 1],
+        [313, 403, 'Lemonade', 40.00, 20.00, 'น้ำมะนาวสด', 1],
+        [314, 403, 'Smoothie', 60.00, 30.00, 'สมูทตี้ผลไม้รวม', 1],
+        [315, 404, 'Chocolate Cake', 85.00, 40.00, 'เค้กช็อกโกแลตเข้มข้น', 1],
+        [316, 404, 'Cheesecake', 90.00, 45.00, 'ชีสเค้กนิวยอร์ก', 1],
+        [317, 404, 'Croissant', 50.00, 20.00, 'ครัวซองต์เนยแท้', 1],
+        [318, 404, 'Brownie', 55.00, 25.00, 'บราวนี่ช็อกโกแลต', 1],
+        [319, 405, 'Club Sandwich', 95.00, 45.00, 'แซนวิชคลับ 3 ชั้น', 1],
+        [320, 405, 'Caesar Salad', 85.00, 40.00, 'สลัดซีซาร์', 1]
     ];
 
+    $stmt = $conn->prepare("INSERT IGNORE INTO MENU (MenuID, CategoryID, MenuName, Price, Cost, Description, IsPopular) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($menus as $menu) {
-        $stmt = $conn->prepare("INSERT INTO MENU (MenuID, CategoryID, MenuName, Price, Description, Status) VALUES (?, ?, ?, ?, ?, 1)");
         $stmt->execute($menu);
     }
-    echo "✓ Inserted 14 menu items (เมนู) - MenuID: 301-314<br>";
+    echo "✓ Inserted 20 menu items (MenuID: 301-320)<br>";
 
-    // 5. INSERT CUSTOMER (ลูกค้า) - ดัชนีเริ่มต้นที่ 201
+    // 5. CUSTOMER - เริ่มที่ 201
     $customers = [
-        [201, 'สมชาย ใจดี', '0812345678', 100],
-        [202, 'วิชญา สวยใจ', '0823456789', 250],
-        [203, 'นายมิ่ง เก่งเรียน', '0834567890', 500],
-        [204, 'น้องน้ำ มะวัง', '0845678901', 150],
-        [205, 'คุณหนูหวาน รักกาแฟ', '0856789012', 750]
+        [201, 'สมชาย ใจดี', '0891234567', 'customer1@email.com', password_hash('customer123', PASSWORD_BCRYPT), 150, 'Bronze'],
+        [202, 'วิชญา สวยใจ', '0892345678', 'customer2@email.com', password_hash('customer123', PASSWORD_BCRYPT), 350, 'Silver'],
+        [203, 'นายมิ่ง เก่งเรียน', '0893456789', 'customer3@email.com', password_hash('customer123', PASSWORD_BCRYPT), 580, 'Gold'],
+        [204, 'น้องน้ำ มะวัง', '0894567890', 'customer4@email.com', password_hash('customer123', PASSWORD_BCRYPT), 220, 'Bronze'],
+        [205, 'คุณหนู รักกาแฟ', '0895678901', 'customer5@email.com', password_hash('customer123', PASSWORD_BCRYPT), 850, 'Platinum']
     ];
 
+    $stmt = $conn->prepare("INSERT IGNORE INTO CUSTOMER (CustomerID, Name, Phone, Email, Password, Points, MemberLevel) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($customers as $cust) {
-        $stmt = $conn->prepare("INSERT INTO CUSTOMER (CustomerID, Name, Phone, Points) VALUES (?, ?, ?, ?)");
         $stmt->execute($cust);
     }
-    echo "✓ Inserted 5 customers (ลูกค้า) - CustomerID: 201-205<br>";
+    echo "✓ Inserted 5 customers (CustomerID: 201-205)<br>";
 
-    // 6. INSERT ORDERS (ใบสั่ง) - ดัชนีเริ่มต้นที่ 701
+    // 6. SUPPLIER - เริ่มที่ 501
+    $suppliers = [
+        [501, 'กาแฟสยามพรีเมียม', 'คุณสมชาย', '0612345678', 'supplier1@email.com', 'กรุงเทพฯ'],
+        [502, 'นมบริสุทธิ์โคนม', 'คุณวิชัย', '0623456789', 'supplier2@email.com', 'นครปฐม'],
+        [503, 'เครื่องดื่มเพชรพลัส', 'คุณสมหญิง', '0634567890', 'supplier3@email.com', 'สมุทรสาคร'],
+        [504, 'ของหวานอร่อยใจ', 'คุณประเสริฐ', '0645678901', 'supplier4@email.com', 'กรุงเทพฯ']
+    ];
+
+    $stmt = $conn->prepare("INSERT IGNORE INTO SUPPLIER (SupplierID, SupplierName, ContactPerson, Phone, Email, Address) VALUES (?, ?, ?, ?, ?, ?)");
+    foreach ($suppliers as $sup) {
+        $stmt->execute($sup);
+    }
+    echo "✓ Inserted 4 suppliers (SupplierID: 501-504)<br>";
+
+    // 7. SAMPLE ORDERS - เริ่มที่ 701
+    $orderDate = date('Y-m-d H:i:s', strtotime('-1 day'));
+    $stmt = $conn->prepare("INSERT IGNORE INTO ORDERS (OrderID, OrderNumber, OrderDate, EmployeeID, CustomerID, SubTotal, Discount, Tax, TotalPrice, PaymentMethod) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    
     $orders = [
-        [701, '2025-11-22 08:30:00', 101, 201, 155.00, 0, 'Cash', 'Completed'],
-        [702, '2025-11-22 09:15:00', 102, 202, 165.00, 10, 'Card', 'Completed'],
-        [703, '2025-11-22 10:00:00', 101, NULL, 215.00, 0, 'Cash', 'Completed'],
-        [704, '2025-11-22 11:30:00', 103, 203, 125.00, 5, 'QR Code', 'Completed'],
-        [705, '2025-11-22 14:45:00', 102, 204, 185.00, 0, 'Card', 'Completed']
+        [701, 'ORD' . date('Ymd') . '001', $orderDate, 103, 201, 155.00, 0, 10.85, 165.85, 'Cash'],
+        [702, 'ORD' . date('Ymd') . '002', $orderDate, 103, 202, 200.00, 20, 12.60, 192.60, 'Card'],
+        [703, 'ORD' . date('Ymd') . '003', $orderDate, 104, NULL, 125.00, 0, 8.75, 133.75, 'QR Code']
     ];
 
     foreach ($orders as $order) {
-        $stmt = $conn->prepare("INSERT INTO ORDERS (OrderID, OrderDate, RegisterID, CustomerID, TotalPrice, Discount, PaymentMethod, OrderStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute($order);
     }
-    echo "✓ Inserted 5 orders (ใบสั่ง) - OrderID: 701-705<br>";
+    echo "✓ Inserted 3 sample orders (OrderID: 701-703)<br>";
 
-    // 7. INSERT ORDERDETAIL (รายละเอียดสั่ง) - ดัชนีเริ่มต้นที่ 801
-    $orderdetails = [
-        [801, 701, 301, 2, 40.00],
-        [802, 701, 303, 1, 60.00],
-        [803, 701, 312, 1, 85.00],
-        [804, 702, 302, 1, 50.00],
-        [805, 702, 304, 2, 65.00],
-        [806, 703, 305, 2, 55.00],
-        [807, 703, 306, 1, 70.00],
-        [808, 703, 314, 1, 80.00],
-        [809, 704, 308, 1, 45.00],
-        [810, 704, 313, 1, 50.00],
-        [811, 705, 307, 2, 60.00],
-        [812, 705, 310, 1, 45.00],
-        [813, 705, 311, 1, 40.00]
-    ];
-
-    foreach ($orderdetails as $detail) {
-        $stmt = $conn->prepare("INSERT INTO ORDERDETAIL (OrderDetailID, OrderID, MenuID, Quantity, Price) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute($detail);
-    }
-    echo "✓ Inserted 13 order details (รายละเอียด) - OrderDetailID: 801-813<br>";
-
-    // 8. INSERT SUPPLIER (ผู้จัดส่ง) - ดัชนีเริ่มต้นที่ 501
-    $suppliers = [
-        [501, 'กาแฟสยามพรีเมียม', '0612345678'],
-        [502, 'นมบริสุทธิ์โคนม', '0623456789'],
-        [503, 'เครื่องดื่มเพชรพลัส', '0634567890'],
-        [504, 'ของหวานอร่อยใจ', '0645678901'],
-        [505, 'น้ำผลไม้เชื่อมหวาน', '0656789012']
-    ];
-
-    foreach ($suppliers as $sup) {
-        $stmt = $conn->prepare("INSERT INTO SUPPLIER (SupplierID, SupplierName, Phone) VALUES (?, ?, ?)");
-        $stmt->execute($sup);
-    }
-    echo "✓ Inserted 5 suppliers (ผู้จัดส่ง) - SupplierID: 501-505<br><br>";
-
+    echo "<br><hr>";
+    echo "<h2 style='color: green;'>✓✓✓ Database Setup Completed Successfully! ✓✓✓</h2>";
     echo "<hr>";
-    echo "<h3>✓✓✓ Database Created & Sample Data Inserted Successfully! ✓✓✓</h3>";
-    echo "<hr>";
+    echo "<h3>📌 Default Login Credentials:</h3>";
+    echo "<ul>";
+    echo "<li><strong>Admin:</strong> admin01 / admin123</li>";
+    echo "<li><strong>Manager:</strong> manager01 / manager123</li>";
+    echo "<li><strong>Cashier:</strong> cashier01 / cashier123</li>";
+    echo "</ul>";
 
 } catch (PDOException $e) {
     echo "<br>❌ Error: " . $e->getMessage() . "<br>";
+    echo "<pre>" . $e->getTraceAsString() . "</pre>";
 }
 ?>
