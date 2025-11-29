@@ -27,6 +27,13 @@
             <label class="form-label mt-3">ชื่อผู้ใช้</label>
             <input type="text" class="form-control input-coffee" name="Username" required placeholder="โปรดระบุชื่อผู้ใช้">
 
+            <label class="form-label mt-3">คำนำหน้าชื่อ</label>
+            <select name="Prefix" class="form-control input-coffee" id="" required>
+                <option value="นาย">นาย</option>
+                <option value="นางสาว">นางสาว</option>
+                <option value="นาง">นาง</option>
+            </select>
+
             <label class="form-label mt-3">ชื่อ-นามสกุล</label>
             <input type="text" class="form-control input-coffee" name="Name" required placeholder="โปรดระบุชื่อ-นามสกุล">
 

@@ -40,6 +40,7 @@ try {
         EmployeeID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสพนักงาน',
         Username VARCHAR(50) NOT NULL UNIQUE COMMENT 'ชื่อผู้ใช้',
         Password VARCHAR(255) NOT NULL COMMENT 'รหัสผ่าน',
+        Prefix ENUM('นาย', 'นางสาว', 'นาง') COMMENT 'คำนำหน้า',
         Name VARCHAR(100) NOT NULL COMMENT 'ชื่อ-นามสกุล',
         Email VARCHAR(100) UNIQUE COMMENT 'อีเมล',
         Phone VARCHAR(10) COMMENT 'เบอร์โทรศัพท์',
@@ -101,6 +102,7 @@ try {
     $conn->exec("CREATE TABLE IF NOT EXISTS CUSTOMER(
         CustomerID INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสลูกค้า',
         Username VARCHAR(100) NOT NULL COMMENT 'ชื่อผู้ใช้',
+        Prefix ENUM('นาย', 'นางสาว', 'นาง') COMMENT 'คำนำหน้า',
         Name VARCHAR(100) NOT NULL COMMENT 'ชื่อลูกค้า',
         Phone VARCHAR(10) UNIQUE COMMENT 'เบอร์โทร',
         Email VARCHAR(100) UNIQUE COMMENT 'อีเมล',
