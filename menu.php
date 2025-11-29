@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php include('header.php'); ?>
+    <?php 
+    session_start(); // ย้ายมาไว้ก่อน
+    include('header.php'); 
+    ?>
 
     <div class="page-background">
 

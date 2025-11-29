@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <?php include 'header.php'; ?>
+  <?php include 'header.php'; session_start();?>
 
   <main class="page" role="main">
 
