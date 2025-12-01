@@ -1,11 +1,15 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-session_start(); // เพิ่มบรรทัดนี้
+ini_set('log_errors', 1);
+ini_set('error_log', '/pos-php-pdo/error.log');
+trigger_error("This is a test error message.", E_USER_WARNING);
+
+session_start(); 
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
-// Include PDO Database
+
 include('api.php');  
 
 switch ($action) {
