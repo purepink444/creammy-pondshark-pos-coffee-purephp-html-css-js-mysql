@@ -21,6 +21,10 @@ const alertPopup = document.getElementById('alert-popup');
 const alertMessage = document.getElementById('alert-message');
 const closeAlertBtn = document.getElementById('close-alert');
 
+// Dropdown Elements
+const dropdownBtn = document.getElementById('dropdownBtn');
+const dropdownPanel = document.getElementById('dropdownPanel');
+
 // ตะกร้าสินค้า
 let cart = [];
 
@@ -28,13 +32,11 @@ let cart = [];
 // ฟังก์ชันอัพเดทตะกร้า
 // ==============================
 function updateCart() {
-  // ล้างตาราง
-  tableBody.innerHTML = '';
+  if (!tableBody) return;
   
-  // คำนวณยอดรวม
+  tableBody.innerHTML = '';
   let subtotal = 0;
 
-  // ถ้าตะกร้าว่าง แสดงข้อความ
   if (cart.length === 0) {
     tableBody.innerHTML = `
       <tr>
@@ -44,7 +46,6 @@ function updateCart() {
       </tr>
     `;
   } else {
-    // แสดงรายการในตะกร้า
     cart.forEach((item, index) => {
       subtotal += item.price;
       
@@ -61,16 +62,13 @@ function updateCart() {
     });
   }
 
-  // คำนวณ VAT และยอดรวมสุทธิ
   const vat = subtotal * 0.07;
   const total = subtotal + vat;
 
-  // อัพเดทการแสดงผล
   if (subtotalSpan) subtotalSpan.textContent = subtotal.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   if (vatSpan) vatSpan.textContent = vat.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   if (totalSpan) totalSpan.textContent = total.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-  // เพิ่ม event listener สำหรับปุ่มลบ
   attachDeleteButtons();
 }
 
@@ -96,7 +94,9 @@ function addToCart(name, price) {
     price: parseFloat(price) 
   });
   updateCart();
-  showNotification(`เพิ่ม "${name}" เข้าตะกร้าแล้ว`);
+  if (alertMessage && alertPopup) {
+    showNotification(`เพิ่ม "${name}" เข้าตะกร้าแล้ว`);
+  }
 }
 
 // ==============================
@@ -106,17 +106,20 @@ function removeFromCart(index) {
   const item = cart[index];
   cart.splice(index, 1);
   updateCart();
-  showNotification(`ลบ "${item.name}" ออกจากตะกร้าแล้ว`);
+  if (alertMessage && alertPopup) {
+    showNotification(`ลบ "${item.name}" ออกจากตะกร้าแล้ว`);
+  }
 }
 
 // ==============================
 // แสดงการแจ้งเตือนแบบง่าย
 // ==============================
 function showNotification(message) {
+  if (!alertMessage || !alertPopup) return;
+  
   alertMessage.textContent = message;
   alertPopup.classList.add('show');
   
-  // ปิดอัตโนมัติหลัง 2 วินาที
   setTimeout(() => {
     alertPopup.classList.remove('show');
   }, 2000);
@@ -125,46 +128,51 @@ function showNotification(message) {
 // ==============================
 // คลิกการ์ดเมนูที่มีอยู่แล้ว
 // ==============================
-cards.forEach(card => {
-  card.addEventListener('click', function() {
-    const menuName = this.textContent.trim();
-    const menuPrice = 50; // ราคาเริ่มต้น (ควรดึงจาก database จริงๆ)
-    addToCart(menuName, menuPrice);
+if (cards.length > 0) {
+  cards.forEach(card => {
+    card.addEventListener('click', function() {
+      const menuName = this.textContent.trim();
+      const menuPrice = 50;
+      addToCart(menuName, menuPrice);
+    });
   });
-});
+}
 
 // ==============================
 // Modal: เปิด/ปิด
 // ==============================
-if (addMenuBtn) {
+if (addMenuBtn && modalAdd) {
   addMenuBtn.addEventListener('click', () => {
     modalAdd.classList.add('show');
     document.body.classList.add('modal-open');
   });
 }
 
-if (closeModalBtn) {
+if (closeModalBtn && modalAdd) {
   closeModalBtn.addEventListener('click', () => {
     closeModal();
   });
 }
 
 function closeModal() {
-  modalAdd.classList.remove('show');
+  if (modalAdd) {
+    modalAdd.classList.remove('show');
+  }
   document.body.classList.remove('modal-open');
   resetForm();
 }
 
-// ปิด modal เมื่อคลิกนอก modal-content
-modalAdd.addEventListener('click', (e) => {
-  if (e.target === modalAdd) {
-    closeModal();
-  }
-});
+// เช็คว่ามี modalAdd ก่อนเพิ่ม event listener
+if (modalAdd) {
+  modalAdd.addEventListener('click', (e) => {
+    if (e.target === modalAdd) {
+      closeModal();
+    }
+  });
+}
 
-// ปิด modal ด้วย ESC key
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modalAdd.classList.contains('show')) {
+  if (e.key === 'Escape' && modalAdd && modalAdd.classList.contains('show')) {
     closeModal();
   }
 });
@@ -190,23 +198,19 @@ if (addMenuForm) {
     const menuDesc = document.getElementById('new-menu-desc').value.trim();
     const menuImage = document.getElementById('new-menu-image').files[0];
 
-    // ตรวจสอบข้อมูล
     if (!menuName || !menuPrice) {
       showNotification('❌ กรุณากรอกชื่อเมนูและราคา');
       return;
     }
 
-    // ตรวจสอบราคา
     if (parseFloat(menuPrice) <= 0) {
       showNotification('❌ ราคาต้องมากกว่า 0');
       return;
     }
 
-    // แสดงสถานะกำลังบันทึก
     saveMenuBtn.disabled = true;
     saveMenuBtn.textContent = 'กำลังบันทึก...';
 
-    // สร้าง FormData สำหรับส่งข้อมูลพร้อมรูปภาพ
     const formData = new FormData();
     formData.append('menuName', menuName);
     formData.append('menuPrice', menuPrice);
@@ -216,7 +220,6 @@ if (addMenuForm) {
     }
 
     try {
-      // ส่งข้อมูลไปยัง PHP
       const response = await fetch('add_menu.php', {
         method: 'POST',
         body: formData
@@ -225,13 +228,9 @@ if (addMenuForm) {
       const result = await response.json();
 
       if (result.success) {
-        // ปิด modal
         closeModal();
-        
-        // แสดงการแจ้งเตือนสำเร็จ
         showNotification('✓ เพิ่มเมนูใหม่สำเร็จ');
         
-        // รีโหลดหน้าหลังจาก 1.5 วินาที
         setTimeout(() => {
           location.reload();
         }, 1500);
@@ -242,7 +241,6 @@ if (addMenuForm) {
       console.error('Error:', error);
       showNotification('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ');
     } finally {
-      // คืนสถานะปุ่ม
       saveMenuBtn.disabled = false;
       saveMenuBtn.textContent = 'เพิ่มเมนู';
     }
@@ -252,18 +250,19 @@ if (addMenuForm) {
 // ==============================
 // ปิด Alert Popup
 // ==============================
-if (closeAlertBtn) {
+if (closeAlertBtn && alertPopup) {
   closeAlertBtn.addEventListener('click', () => {
     alertPopup.classList.remove('show');
   });
 }
 
-// ปิด alert เมื่อคลิกนอก modal
-alertPopup.addEventListener('click', (e) => {
-  if (e.target === alertPopup) {
-    alertPopup.classList.remove('show');
-  }
-});
+if (alertPopup) {
+  alertPopup.addEventListener('click', (e) => {
+    if (e.target === alertPopup) {
+      alertPopup.classList.remove('show');
+    }
+  });
+}
 
 // ==============================
 // ลบทั้งหมด
@@ -294,17 +293,84 @@ if (confirmOrderBtn) {
     }
     
     if (confirm('ยืนยันการสั่งซื้อหรือไม่?')) {
-      // ส่งข้อมูลไปยัง backend
       console.log('สั่งซื้อ:', cart);
       showNotification('✓ สั่งซื้อสำเร็จ!');
       
-      // ล้างตะกร้า
       setTimeout(() => {
         cart = [];
         updateCart();
       }, 1500);
     }
   });
+}
+
+// ==============================
+// Dropdown Menu
+// ==============================
+if (dropdownBtn && dropdownPanel) {
+  dropdownBtn.addEventListener('click', () => {
+    console.log('Dropdown clicked');
+    dropdownPanel.classList.toggle('show');
+    console.log('Dropdown show class:', dropdownPanel.classList.contains('show'));
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if (dropdownPanel && !e.target.closest('.dropdown-category-wrapper')) {
+    dropdownPanel.classList.remove('show');
+  }
+});
+
+// ==============================
+// Slideshow - เช็คว่ามี slides ก่อน
+// ==============================
+const slides = document.getElementsByClassName("mySlides");
+
+if (slides.length > 0) {
+  let slideIndex = 1;
+  showSlides(slideIndex);
+
+  // ทำให้ฟังก์ชันเป็น global เพื่อให้ onclick ใน HTML ใช้ได้
+  window.plusSlides = function(n) {
+    showSlides(slideIndex += n);
+  }
+
+  window.currentSlide = function(n) {
+    showSlides(slideIndex = n);
+  }
+
+  function showSlides(n) {
+    let i;
+    let slides = document.getElementsByClassName("mySlides");
+    let dots = document.getElementsByClassName("dot");
+    
+    if (slides.length === 0) return;
+    
+    if (n > slides.length) {slideIndex = 1}    
+    if (n < 1) {slideIndex = slides.length}
+    
+    for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";  
+    }
+    
+    for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+    }
+    
+    if (slides[slideIndex-1]) {
+      slides[slideIndex-1].style.display = "block";
+    }
+    
+    if (dots[slideIndex-1]) {
+      dots[slideIndex-1].className += " active";
+    }
+  }
+
+  // Auto Slideshow (ทุก 5 วินาที)
+  setInterval(() => {
+    slideIndex++;
+    showSlides(slideIndex);
+  }, 5000);
 }
 
 // ==============================

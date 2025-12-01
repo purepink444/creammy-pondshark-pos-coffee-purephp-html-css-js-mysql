@@ -6,7 +6,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สมัครสมาชิก</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
 </head>
@@ -17,33 +16,40 @@
 <div class="center-page">
     <div class="card-coffee register-card">
 
-        <!-- avatar -->
-        <div class="avatar-coffee mx-auto"></div>
-
         <h3 class="text-center mt-3">สมัครสมาชิก</h3>
 
         <form action="datastructures.php?action=customer_register" method="POST" class="mt-4">
 
-            <label class="form-label mt-3">ชื่อผู้ใช้</label>
-            <input type="text" class="form-control input-coffee" name="Username" required placeholder="โปรดระบุชื่อผู้ใช้">
+            <div class="form-group">
+                <label>ชื่อผู้ใช้</label>
+                <input type="text" name="Username" required placeholder="โปรดระบุชื่อผู้ใช้">
+            </div>
 
-            <label class="form-label mt-3">คำนำหน้าชื่อ</label>
-            <select name="Prefix" class="form-control input-coffee" id="" required>
-                <option value="นาย">นาย</option>
-                <option value="นางสาว">นางสาว</option>
-                <option value="นาง">นาง</option>
-            </select>
+            <div class="form-group">
+                <label>คำนำหน้าชื่อ</label>
+                <select name="Prefix" required>
+                    <option value="นาย">นาย</option>
+                    <option value="นางสาว">นางสาว</option>
+                    <option value="นาง">นาง</option>
+                </select>
+            </div>
 
-            <label class="form-label mt-3">ชื่อ-นามสกุล</label>
-            <input type="text" class="form-control input-coffee" name="Name" required placeholder="โปรดระบุชื่อ-นามสกุล">
+            <div class="form-group">
+                <label>ชื่อ-นามสกุล</label>
+                <input type="text" name="Name" required placeholder="โปรดระบุชื่อ-นามสกุล">
+            </div>
 
-            <label class="form-label mt-3">อีเมล</label>
-            <input type="email" class="form-control input-coffee" name="Email" required placeholder="โปรดระบุอีเมล">
+            <div class="form-group">
+                <label>อีเมล</label>
+                <input type="email" name="Email" required placeholder="โปรดระบุอีเมล">
+            </div>
 
-            <label class="form-label mt-3">รหัสผ่าน</label>
-            <input type="password" class="form-control input-coffee" name="Password" required placeholder="โปรดระบุรหัสผ่าน">
+            <div class="form-group">
+                <label>รหัสผ่าน</label>
+                <input type="password" name="Password" required placeholder="โปรดระบุรหัสผ่าน">
+            </div>
 
-            <button type="submit" class="btn btn-coffee w-100 mt-4">สมัครสมาชิก</button>
+            <button type="submit" class="btn-coffee w-100 mt-4">สมัครสมาชิก</button>
 
         </form>
     </div>

@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php 
+    <?php
     session_start(); // ย้ายมาไว้ก่อน
-    include('header.php'); 
+    include('header.php');
     ?>
 
     <div class="page-background">
@@ -20,18 +20,30 @@
                 <div class="dropdown-category" id="dropdownBtn">
                     ทั้งหมด
                 </div>
-                <div class="dropdown-panel" id="dropdownPanel">
-                    <div class="dropdown-item">
-                        <img src="/mnt/data/list.png" alt="Icon 1">
-                        <span>Category 1</span>
+                <div class="list" id="dropdownPanel">
+                    <div class="dropdown-item" data-category="all">
+                        <img src="pictures/list.png" alt="ทั้งหมด">
+                        <span>ทั้งหมด</span>
                     </div>
-                    <div class="dropdown-item">
-                        <img src="/mnt/data/list.png" alt="Icon 2">
-                        <span>Category 2</span>
+                    <div class="dropdown-item" data-category="กาแฟ">
+                        <img src="pictures/list.png" alt="กาแฟ">
+                        <span>กาแฟ</span>
                     </div>
-                    <div class="dropdown-item">
-                        <img src="/mnt/data/list.png" alt="Icon 3">
-                        <span>Category 3</span>
+                    <div class="dropdown-item" data-category="ชา">
+                        <img src="pictures/list.png" alt="ชา">
+                        <span>ชา</span>
+                    </div>
+                    <div class="dropdown-item" data-category="เครื่องดื่มอื่นๆ">
+                        <img src="pictures/list.png" alt="เครื่องดื่มอื่นๆ">
+                        <span>เครื่องดื่มอื่นๆ</span>
+                    </div>
+                    <div class="dropdown-item" data-category="ของหวาน">
+                        <img src="pictures/list.png" alt="ของหวาน">
+                        <span>ของหวาน</span>
+                    </div>
+                    <div class="dropdown-item" data-category="อาหารว่าง">
+                        <img src="pictures/list.png" alt="อาหารว่าง">
+                        <span>อาหารว่าง</span>
                     </div>
                 </div>
             </div>
@@ -50,7 +62,7 @@
                     </div>
                     <div class="price-status">
                         <span>Price</span>
-                        <span>Status</span>
+                        <button class="btn-soldout">ซื้อ</button>
                     </div>
                 </div>
             </div>
@@ -65,7 +77,7 @@
                     </div>
                     <div class="price-status">
                         <span>Price</span>
-                        <span>Status</span>
+                        <button class="btn-soldout">ซื้อ</button>
                     </div>
                 </div>
             </div>
@@ -80,7 +92,7 @@
                     </div>
                     <div class="price-status">
                         <span>Price</span>
-                        <span>Status</span>
+                        <button class="btn-soldout">ซื้อ</button>
                     </div>
                 </div>
             </div>
@@ -90,21 +102,7 @@
 
     <?php include('footer.php'); ?>
 
-    <!-- Script สำหรับเปิด/ปิด Dropdown -->
-    <script>
-        const dropdownBtn = document.getElementById('dropdownBtn');
-        const dropdownPanel = document.getElementById('dropdownPanel');
-
-        dropdownBtn.addEventListener('click', () => {
-            dropdownPanel.style.display = dropdownPanel.style.display === 'flex' ? 'none' : 'flex';
-        });
-
-        // ปิด dropdown เมื่อคลิกข้างนอก
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown-category-wrapper')) {
-                dropdownPanel.style.display = 'none';
-            }
-        });
-    </script>
+   
+    <script src="script.js"></script>
 </body>
 </html>

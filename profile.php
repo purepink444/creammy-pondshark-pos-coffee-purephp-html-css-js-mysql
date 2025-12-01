@@ -1,27 +1,32 @@
 <?php
 session_start();
-require_once 'api.php'; 
 
-// ตรวจสอบ session และ redirect หาก user ไม่ได้ login
-if (!isset($_SESSION['user_id'])) {
-    header("Location: profile.php");
+// Check if customer or employee is logged in
+if (!isset($_SESSION['CustomerID']) && !isset($_SESSION['EmployeeID'])) {
+    header("Location: login.php");
     exit();
 }
 
-// ดึงข้อมูล user ก่อน render HTML
-$user_id = $_SESSION['user_id'];
-try {
-    $user = getUserById($user_id); // สมมติว่ามีฟังก์ชันนี้ใน api.php
-    
-    if (!$user) {
-        // ถ้าไม่พบข้อมูล user ให้ทำลาย session และ redirect
-        session_destroy();
-        header("Location: profile.php");
-        exit();
-    }
-} catch (Exception $e) {
-    error_log("Error loading user profile: " . $e->getMessage());
-    die("เกิดข้อผิดพลาดในการโหลดข้อมูล");
+// Get user data based on session type
+$user = null;
+if (isset($_SESSION['CustomerID'])) {
+    // For now, just use session data since we don't have a getUserById function
+    $user = [
+        'username' => $_SESSION['Username'] ?? '',
+        'fullname' => $_SESSION['Name'] ?? '',
+        'phone' => $_SESSION['Phone'] ?? '',
+        'email' => $_SESSION['Email'] ?? '',
+        'points' => $_SESSION['Points'] ?? 0
+    ];
+} else {
+    // Employee data
+    $user = [
+        'username' => $_SESSION['Username'] ?? '',
+        'fullname' => $_SESSION['Name'] ?? '',
+        'phone' => $_SESSION['Phone'] ?? '',
+        'email' => $_SESSION['Email'] ?? '',
+        'points' => 0
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -35,102 +40,61 @@ try {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
-    <link rel="stylesheet" href="profile.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Navbar -->
-<div class="topbar">
-    <div class="brand">☕ Coffee Shop</div>
-    <div class="nav-links">
-        <a href="index.php">หน้าแรก</a>
-        <a href="menu.php">เมนู</a>
-        <a href="order.php">สั่งซื้อ</a>
-        <a href="profile.php">โปรไฟล์</a>
-        <a href="logout.php">ออกจากระบบ</a>
-    </div>
-</div>
+<?php include('header.php'); ?>
 
-<div class="profile-container">
-    <div class="profile-card">
-        <div class="profile-header">
-            <h1>โปรไฟล์ผู้ใช้</h1>
-        </div>
+<div class="center-page">
+    <div class="card-coffee register-card">
+        <h3 class="text-center">โปรไฟล์ผู้ใช้</h3>
 
-        <div class="profile-layout">
+        <div class="mt-4">
             <!-- LEFT SECTION -->
-            <div class="profile-left">
-                <div class="form-field">
-                    <label>ชื่อผู้ใช้</label>
-                    <input type="text" 
-                           value="<?= htmlspecialchars($user['username'] ?? '') ?>" 
-                           disabled>
-                </div>
-
-                <div class="score-display">
-                    <div class="label">คะแนนสะสม</div>
-                    <div class="points"><?= number_format($user['points'] ?? 0) ?></div>
-                    <div class="points-text">คะแนน</div>
-                </div>
+            <div class="form-group">
+                <label>ชื่อผู้ใช้</label>
+                <input type="text" value="<?= htmlspecialchars($user['username'] ?? '') ?>" disabled>
             </div>
 
-            <!-- RIGHT SECTION -->
-            <div class="profile-right">
-                <form id="profileForm" method="POST" action="update_profile.php">
-                    <div class="form-field">
-                        <label>ชื่อ-นามสกุล</label>
-                        <input type="text" 
-                               name="fullname"
-                               value="<?= htmlspecialchars($user['fullname'] ?? '') ?>" 
-                               required>
-                    </div>
-
-                    <div class="form-field">
-                        <label>เบอร์โทรศัพท์</label>
-                        <input type="tel" 
-                               name="phone"
-                               value="<?= htmlspecialchars($user['phone'] ?? '') ?>" 
-                               pattern="[0-9]{10}"
-                               placeholder="0812345678"
-                               required>
-                    </div>
-
-                    <div class="form-field">
-                        <label>อีเมล</label>
-                        <input type="email" 
-                               name="email"
-                               value="<?= htmlspecialchars($user['email'] ?? '') ?>" 
-                               required>
-                    </div>
-
-                    <div class="form-field">
-                        <label>รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)</label>
-                        <input type="password" 
-                               name="new_password"
-                               placeholder="กรอกรหัสผ่านใหม่"
-                               minlength="6">
-                    </div>
-
-                    <div class="form-field">
-                        <label>ยืนยันรหัสผ่านใหม่</label>
-                        <input type="password" 
-                               name="confirm_password"
-                               placeholder="ยืนยันรหัสผ่านใหม่"
-                               minlength="6">
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='index.php'">
-                            ยกเลิก
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            บันทึกข้อมูล
-                        </button>
-                    </div>
-                </form>
+            <div class="form-group">
+                <label>คะแนนสะสม</label>
+                <input type="text" value="<?= number_format($user['points'] ?? 0) ?> คะแนน" disabled>
             </div>
         </div>
+
+        <!-- RIGHT SECTION -->
+        <form id="profileForm" method="POST" action="update_profile.php" class="mt-4">
+            <div class="form-group">
+                <label>ชื่อ-นามสกุล</label>
+                <input type="text" name="fullname" value="<?= htmlspecialchars($user['fullname'] ?? '') ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" pattern="[0-9]{10}" placeholder="0812345678" required>
+            </div>
+
+            <div class="form-group">
+                <label>อีเมล</label>
+                <input type="email" name="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label>รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)</label>
+                <input type="password" name="new_password" placeholder="กรอกรหัสผ่านใหม่" minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label>ยืนยันรหัสผ่านใหม่</label>
+                <input type="password" name="confirm_password" placeholder="ยืนยันรหัสผ่านใหม่" minlength="6">
+            </div>
+
+            <div class="mt-4">
+                <button type="button" class="btn-cancel" onclick="window.location.href='menu.php'" style="margin-right: 12px;">ยกเลิก</button>
+                <button type="submit" class="btn-coffee">บันทึกข้อมูล</button>
+            </div>
+        </form>
     </div>
 </div>
 

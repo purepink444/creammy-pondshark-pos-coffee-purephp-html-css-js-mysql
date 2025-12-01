@@ -1,23 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>footer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    
-    <footer>
-    <div class="footer">
-        <p>© 2024 Creammy POS System. All rights reserved.</p>
-    </footer>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>โสภา คาเฟ่</h3>
+                <p>คาเฟ่คุณภาพ เครื่องดื่มอร่อย บรรยากาศดี</p>
+            </div>
+            <div class="footer-section">
+                <h4>ติดต่อเรา</h4>
+                <p>📍 123 ถนนมิตรภาพ นครราชสีมา</p>
+                <p>📞 044-123-456</p>
+                <p>📧 info@sophacafe.com</p>
+            </div>
+            <div class="footer-section">
+                <h4>เวลาทำการ</h4>
+                <p>จันทร์ - ศุกร์: 08:00 - 20:00</p>
+                <p>เสาร์ - อาทิตย์: 09:00 - 21:00</p>
+            </div>
+            <div class="footer-section">
+                <h4>ติดตามเรา</h4>
+                <div class="social-links">
+                    <a href="#" class="social-link">Facebook</a>
+                    <a href="#" class="social-link">Instagram</a>
+                    <a href="#" class="social-link">Line</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 โสภา คาเฟ่. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 
 
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-</body>
-</html>
