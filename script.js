@@ -94,9 +94,7 @@ function addToCart(name, price) {
     price: parseFloat(price) 
   });
   updateCart();
-  if (alertMessage && alertPopup) {
-    showNotification(`เพิ่ม "${name}" เข้าตะกร้าแล้ว`);
-  }
+  showNotification(`เพิ่ม "${name}" เข้าตะกร้าแล้ว`);
 }
 
 // ==============================
@@ -106,9 +104,7 @@ function removeFromCart(index) {
   const item = cart[index];
   cart.splice(index, 1);
   updateCart();
-  if (alertMessage && alertPopup) {
-    showNotification(`ลบ "${item.name}" ออกจากตะกร้าแล้ว`);
-  }
+  showNotification(`ลบ "${item.name}" ออกจากตะกร้าแล้ว`);
 }
 
 // ==============================
@@ -162,7 +158,6 @@ function closeModal() {
   resetForm();
 }
 
-// เช็คว่ามี modalAdd ก่อนเพิ่ม event listener
 if (modalAdd) {
   modalAdd.addEventListener('click', (e) => {
     if (e.target === modalAdd) {
@@ -322,13 +317,12 @@ document.addEventListener('click', (e) => {
 });
 
 // ==============================
-// Slideshow - เช็คว่ามี slides ก่อน
+// Slideshow (แก้ไขแล้ว - ไม่ซ้ำ)
 // ==============================
 const slides = document.getElementsByClassName("mySlides");
 
 if (slides.length > 0) {
   let slideIndex = 1;
-  showSlides(slideIndex);
 
   // ทำให้ฟังก์ชันเป็น global เพื่อให้ onclick ใน HTML ใช้ได้
   window.plusSlides = function(n) {
@@ -341,8 +335,8 @@ if (slides.length > 0) {
 
   function showSlides(n) {
     let i;
-    let slides = document.getElementsByClassName("mySlides");
-    let dots = document.getElementsByClassName("dot");
+    const slides = document.getElementsByClassName("mySlides");
+    const dots = document.getElementsByClassName("dot");
     
     if (slides.length === 0) return;
     
@@ -366,7 +360,10 @@ if (slides.length > 0) {
     }
   }
 
-  // Auto Slideshow (ทุก 5 วินาที)
+  // เริ่มแสดง slide แรก
+  showSlides(slideIndex);
+
+  // Auto Slideshow (ทุก 5 วินาที) - ใช้แค่ตัวเดียว
   setInterval(() => {
     slideIndex++;
     showSlides(slideIndex);
@@ -380,36 +377,3 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCart();
   console.log('✓ ระบบพร้อมใช้งาน');
 });
-
-       // Slideshow functionality
-        let slideIndex = 1;
-        showSlides(slideIndex);
-
-        function plusSlides(n) {
-            showSlides(slideIndex += n);
-        }
-
-        function currentSlide(n) {
-            showSlides(slideIndex = n);
-        }
-
-        function showSlides(n) {
-            let i;
-            let slides = document.getElementsByClassName("mySlides");
-            let dots = document.getElementsByClassName("dot");
-            if (n > slides.length) {slideIndex = 1}
-            if (n < 1) {slideIndex = slides.length}
-            for (i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";
-            }
-            for (i = 0; i < dots.length; i++) {
-                dots[i].className = dots[i].className.replace(" active", "");
-            }
-            slides[slideIndex-1].style.display = "block";
-            dots[slideIndex-1].className += " active";
-        }
-
-        // Auto slideshow
-        setInterval(function() {
-            plusSlides(1);
-        }, 5000);

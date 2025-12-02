@@ -432,36 +432,6 @@ button {
     text-align: center;
 }
 
-.form-group {
-    margin-bottom: 24px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: var(--brown-dark);
-    font-size: 14px;
-}
-
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 14px 16px;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--brown-medium);
-    box-shadow: 0 0 0 4px rgba(139, 111, 71, 0.1);
-}
 
 .modal-buttons {
     display: flex;
@@ -469,24 +439,12 @@ button {
     margin-top: 32px;
 }
 
-.btn-cancel {
+.modal-buttons .btn-cancel,
+.modal-buttons .btn-save {
     flex: 1;
     padding: 14px;
-    color: var(--text);
-    background: white;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    transition: all 0.3s ease;
 }
 
-.btn-cancel:hover {
-    background: var(--hover);
-    border-color: var(--brown-medium);
-}
 
 .btn-save {
     flex: 1;
@@ -598,6 +556,22 @@ button {
 /* =========================
    MENU PAGE
 ========================= */
+.page-background {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 32px;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--panel-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
 .menu-panel {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -626,6 +600,42 @@ button {
     background-size: cover;
     background-position: center;
     margin-bottom: 16px;
+}
+
+.menu-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+.menu-info h5 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--brown-dark);
+    margin: 0;
+}
+
+.menu-info p {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 4px 0 0 0;
+    line-height: 1.5;
+}
+
+.price-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.price-status span {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--brown-medium);
 }
 
 /* =========================
@@ -696,10 +706,37 @@ button {
     background: var(--hover);
 }
 
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    transition: all 0.15s ease;
+    width: 100%;
+}
+
+.dropdown-item:hover {
+    background: var(--hover);
+}
+
+.dropdown-item img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
 .dropdown-item[data-category="all"] {
-    font-size: 14px;
-    padding: 6px 12px;
-    opacity: 0.8;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    padding-bottom: 12px;
 }
 
 /* =========================
@@ -798,9 +835,9 @@ textarea:focus {
 
 
 .btn-soldout {
-    background: rgb(64, 255, 39);
-    border: 2px solid var(--border);
-    color: #26dc3e;
+    background: linear-gradient(135deg, var(--confirm-green) 0%, #059669 100%);
+    border: none;
+    color: white;
     padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
@@ -808,6 +845,16 @@ textarea:focus {
     font-size: 14px;
     font-weight: 600;
     transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-soldout:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-soldout:active {
+    transform: translateY(0);
 }
 
 /* =========================
@@ -896,91 +943,6 @@ textarea:focus {
     border-color: var(--brown-medium);
 }
 
-/* Slideshow container */
-.slideshow-container {
-  max-width: 1000px;
-  position: relative;
-  margin: auto;
-}
-
-/* Hide the images by default */
-.mySlides {
-  display: none;
-}
-
-/* Next & previous buttons */
-.prev, .next {
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  width: auto;
-  margin-top: -22px;
-  padding: 16px;
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
-  transition: 0.6s ease;
-  border-radius: 0 3px 3px 0;
-  user-select: none;
-}
-
-/* Position the "next button" to the right */
-.next {
-  right: 0;
-  border-radius: 3px 0 0 3px;
-}
-
-/* On hover, add a black background color with a little bit see-through */
-.prev:hover, .next:hover {
-  background-color: rgba(0,0,0,0.8);
-}
-
-/* Caption text */
-.text {
-  color: #f2f2f2;
-  font-size: 15px;
-  padding: 8px 12px;
-  position: absolute;
-  bottom: 8px;
-  width: 100%;
-  text-align: center;
-}
-
-/* Number text (1/3 etc) */
-.numbertext {
-  color: #f2f2f2;
-  font-size: 12px;
-  padding: 8px 12px;
-  position: absolute;
-  top: 0;
-}
-
-/* The dots/bullets/indicators */
-.dot {
-  cursor: pointer;
-  height: 15px;
-  width: 15px;
-  margin: 0 2px;
-  background-color: #bbb;
-  border-radius: 50%;
-  display: inline-block;
-  transition: background-color 0.6s ease;
-}
-
-.active, .dot:hover {
-  background-color: #717171;
-}
-
-/* Fading animation */
-.fade {
-  animation-name: fade;
-  animation-duration: 1.5s;
-}
-
-@keyframes fade {
-  from {opacity: .4}
-  to {opacity: 1}
-}
 
 /* =========================
    COMPREHENSIVE RESPONSIVE DESIGN
@@ -1709,14 +1671,13 @@ textarea:focus {
 }
 
 .slideshow-container img {
-    width: 100%;
-    height: 100%;
+    width: 80vh;
+    height: 60%;
     object-fit: cover;
 }
 
 /* Hide the images by default */
 .mySlides {
-    display: none;
     position: relative;
 }
 
@@ -1817,6 +1778,12 @@ textarea:focus {
 .welcome-section {
     padding: 80px 0;
     background: linear-gradient(135deg, var(--beige) 0%, white 100%);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
 }
 
 .welcome-content {
@@ -2210,3 +2177,25 @@ textarea:focus {
 @media (prefers-color-scheme: dark) {
     /* Future dark mode styles can be added here */
 }
+
+/* =========================
+   HOMEPAGE STYLES
+========================= */
+
+/* Hero Slideshow Section */
+.hero-section {
+    position: relative;
+    margin-top: 0;
+    width: 100%;
+}
+
+.slideshow-container {
+    max-width: 100%;
+    width: 100%;
+    position: relative;
+    margin: 0;
+    height: 50vh;
+    min-height: 400px;
+    overflow: hidden;
+}
+
